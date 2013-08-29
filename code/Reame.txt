@@ -1,0 +1,10 @@
+Instructions:
+
+Run the setup.exe file to install.
+
+Prequisitions:
+Your computer should have installed Microsoft Framework 3.5 or above.
+
+Download sourcecode:
+
+git clone https://github.com/wangshilianghit/ToeflSpeaking.git
