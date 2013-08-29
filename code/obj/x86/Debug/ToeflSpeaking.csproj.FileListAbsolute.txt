@@ -1,0 +1,4 @@
+C:\MyProgram\Toefl Speaking\code\obj\x86\Debug\ToeflSpeaking.csprojResolveAssemblyReference.cache
+C:\MyProgram\Toefl Speaking\code\obj\x86\Debug\Record2.AddData.resources
+C:\MyProgram\Toefl Speaking\code\obj\x86\Debug\Record2.Form1.resources
+C:\MyProgram\Toefl Speaking\code\obj\x86\Debug\ToeflSpeaking.csproj.GenerateResource.Cache
