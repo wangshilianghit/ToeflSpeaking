@@ -25,17 +25,17 @@ namespace ToeflSpeaking
 {
     public partial class AddData : Form
     {
-        private Form1 parent = null;
+        private MainForm parent = null;
         private int questionNumber = 0;
 
         private DataSet questionDs;
         private SQLiteDatabase db;
 
-        public AddData(Form1 form)
+        public AddData(MainForm form)
         {
             parent = form;  
             InitializeComponent();
-            db = new SQLiteDatabase("E:\\toeflSpeaking.sqlite");     
+            db = new SQLiteDatabase("toeflSpeaking.sqlite");     
         }
 
         private string CleanInput(string strIn)
@@ -78,7 +78,7 @@ namespace ToeflSpeaking
             string query2 = "select question_name from question order by number asc";
             parent.WholeDs = db.GetDataSet(query2);
 
-            parent.First = 0;
+
             parent.StartSpeakingButton.Enabled = false;
         }
 
