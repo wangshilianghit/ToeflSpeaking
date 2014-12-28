@@ -1,0 +1,7 @@
+obj\Release\Product.wixobj
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Release\cab1.cab
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Release\Setup.wixpdb
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Release\Setup.msi
+obj\Release\ToeflPracticeMSI.wixproj.BindContentsFileListnull.txt
+obj\Release\ToeflPracticeMSI.wixproj.BindOutputsFileListnull.txt
+obj\Release\ToeflPracticeMSI.wixproj.BindBuiltOutputsFileListnull.txt

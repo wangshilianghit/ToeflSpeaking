@@ -1,0 +1,5 @@
+C:\MyProgram\Toefl Speaking\code\lib\NAudio.dll
+C:\MyProgram\Toefl Speaking\code\lib\SQLite.Interop.dll
+C:\MyProgram\Toefl Speaking\code\lib\System.Data.SQLite.dll
+C:\MyProgram\Toefl Speaking\code\bin\x86\Release\ToeflPractice.exe
+C:\MyProgram\Toefl Speaking\code\lib\toeflSpeaking.sqlite

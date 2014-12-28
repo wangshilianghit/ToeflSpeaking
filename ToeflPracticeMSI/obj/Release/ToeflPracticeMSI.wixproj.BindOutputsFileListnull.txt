@@ -1,0 +1,3 @@
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Release\cab1.cab
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Release\Setup.msi
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Release\Setup.wixpdb
