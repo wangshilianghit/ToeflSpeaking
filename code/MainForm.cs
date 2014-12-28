@@ -7,7 +7,7 @@
                 The user can set the preparation time, the response time of the question. The user can select the question from the question library. 
                 After the user answer the question completely, he can find the wrong pronunciation by hearing the record. It is a very good way to 
                 practice the oral English.
-* created by Wang Shiliang at 6/1/2011 21:19:50
+* created by Shiliang Wang at 6/1/2011 21:19:50
 *
 */
 using System;
@@ -19,10 +19,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
-
-using Microsoft.DirectX;
-using Microsoft.DirectX.DirectSound;
 using System.IO;
+using NAudio.Wave;
 
 
 namespace ToeflSpeaking
@@ -35,13 +33,11 @@ namespace ToeflSpeaking
         private int responseTime;
         private int prepTime;
         
-        private int curQuestionNumber = 0;     // This variable used to store the actual number of question (not index) the user select. 
+        private int curQuestionNumber = 0;     //This variable used to store the actual number of question (not index) the user select. 
         private string[] detailLibrary;
         private string[] templateLibrary;
         
-        private bool isChanged = false;
-        private bool isSelected = false;
-        private bool isStarted = false;
+        private bool isSelected = false;       //Mark whether the user has select a question
    
         private int totalQuestionNum = 0;
         private int allVisitedNumber = 0;
@@ -50,15 +46,17 @@ namespace ToeflSpeaking
         private DataSet wholeLibraryDs;
         private SQLiteDatabase db;
 
+        private string directoryPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toefl Speaking Practice\\Record");
+
         private AddData addDataForm;
 
-        private NAudio.Wave.WaveFileReader waveReader = null;
+        private WaveFileReader waveReader = null;
 
-        private NAudio.Wave.DirectSoundOut outputSound = null;    
+        private DirectSoundOut outputSound = null;
 
-        private NAudio.Wave.WaveIn sourceStream = null;
+        private WaveIn waveSource = null;
 
-        private NAudio.Wave.WaveFileWriter waveWriter = null;
+        private WaveFileWriter waveFile = null;
 
         private String recordFileName = "";
 
@@ -69,8 +67,13 @@ namespace ToeflSpeaking
         public MainForm()
         {
             InitializeComponent();
-
             db = new SQLiteDatabase("toeflSpeaking.sqlite");
+
+            //Create program record folder if doesn't exit.
+            if (!Directory.Exists(directoryPath))
+            {
+                System.IO.Directory.CreateDirectory(directoryPath);
+            }
 
             addDataForm = new AddData(this);
         }
@@ -120,8 +123,15 @@ namespace ToeflSpeaking
             stopResponseButton.Enabled = false;
             VisitedTimesLabel.Visible = false;
             VisitedTimesNumberLabel.Visible = false;
+            questionRadioButton1.Enabled = false;
+            questionRadioButton2.Enabled = false;
+            questionRadioButton3.Enabled = false;
+            questionRadioButton4.Enabled = false;
+            questionRadioButton5.Enabled = false;
+            questionRadioButton6.Enabled = false;
             //set the default library button
             libraryRadioButton.Checked = true;
+            DescriptionRadioButton.Select();
         }
 
         /*
@@ -132,6 +142,47 @@ namespace ToeflSpeaking
             curState = 1;
             //set the start button enabled
             startSpeakingButton.Enabled = true;
+
+            playResponseButton.Enabled = false;
+            stopResponseButton.Enabled = false;
+        }
+
+        /*
+         * State 2 -> State 1: After we click stop speaking button before it starts recording.
+        */
+        private void stopSpeakingState()
+        {
+            curState = 1;
+
+            //set the relavent label invisible     
+            prepareResponseLabel.Visible = false;
+            remainTimeLabel.Visible = false;
+            remainNumberLabel.Visible = false;
+            timeNumberLabel.Visible = false;
+            timeNumberLabel.Visible = false;
+            responseTimeLabel.Visible = false;
+            allResponseNumberLabel.Visible = false;
+            remainResponseNumberLabel.Visible = false;
+            progressBar.Visible = false;
+            responseTimeLabel.Visible = false;
+            stopSpeakingButton.Visible = false;
+
+            prepareSpeakLabel.Visible = true;
+            startSpeakingButton.Visible = true;
+
+            //set the checkedlistbox enabled
+            questionCheckedListBox.Enabled = true;
+            prepTimeListBox.Enabled = true;
+            rspTimelistBox.Enabled = true;
+            startSpeakingButton.Enabled = true;
+
+            isSelected = true;
+
+            //stop the timer
+            timer.Stop();
+            timer.Enabled = false;
+
+            tickCount = 0;
         }
 
         /*
@@ -168,6 +219,12 @@ namespace ToeflSpeaking
             startSpeakingButton.Enabled = false;
 
             timeNumberLabel.Text = (prepTime).ToString();
+
+            //set the timer
+            this.timer.Enabled = true;
+            timer.Start();
+
+            tickCount = 0;
         }
 
         /*
@@ -184,6 +241,7 @@ namespace ToeflSpeaking
             responseTimeLabel.Visible = true;
             allResponseNumberLabel.Visible = true;
             remainResponseNumberLabel.Visible = true;
+            remainResponseNumberLabel.ForeColor = Color.Black;
 
             int passTime = Convert.ToInt32(GetSeconds(tickCount));
             int remainTime = responseTime - passTime;
@@ -194,20 +252,34 @@ namespace ToeflSpeaking
             tickCount = 0;
             progressBar.Value = 0;
 
-            //set the relavent button enabled
-            isStarted = true;
-
             //set the record name
             int hour = System.DateTime.Now.Hour;
             int minute = System.DateTime.Now.Minute;
             int second = System.DateTime.Now.Second;
-            recordFileName = "record\\" + curQuestionNumber + "." + hour.ToString() + "-" + minute.ToString() + "-" + second.ToString() + ".wav";
+            recordFileName = directoryPath + "\\" +  hour.ToString() + "h-" + minute.ToString() + "m-" + second.ToString() + "s.wav";
 
             //record the speaking
-            //TODO: I think there has some problem in recording right now. 
-            //sourceStream = new NAudio.Wave.WaveIn(NAudio.Wave.WaveCallbackInfo.FunctionCallback());
-            //waveWriter = new NAudio.Wave.WaveFileWriter(recordFileName, sourceStream.WaveFormat);
-            //sourceStream.StartRecording();
+            waveSource = new WaveIn();
+            waveSource.WaveFormat = new WaveFormat(44100, 1);
+            waveSource.DataAvailable += new EventHandler<WaveInEventArgs>(waveSource_DataAvailable);
+            waveSource.RecordingStopped += new EventHandler<StoppedEventArgs>(waveSouce_RecordingStopped);
+
+            waveFile = new WaveFileWriter(recordFileName, waveSource.WaveFormat);
+            waveSource.StartRecording();
+        }
+
+        private void waveSource_DataAvailable(object sender, WaveInEventArgs e)
+        {
+            if (waveFile != null)
+            {
+                waveFile.Write(e.Buffer, 0, e.BytesRecorded);
+                waveFile.Flush();
+            }
+        }
+
+        private void waveSouce_RecordingStopped(object sender, StoppedEventArgs e)
+        {
+            DisposeWave();
         }
 
         /* 
@@ -239,29 +311,24 @@ namespace ToeflSpeaking
             prepTimeListBox.Enabled = true;
             rspTimelistBox.Enabled = true;
 
-            isSelected = false; 
+            DescriptionRadioButton.Select();
+
+            isSelected = false;
+
+            waveSource.StopRecording();
+            DisposeWave();
+            playResponseButton.Enabled = true;
 
             //stop the timer
             timer.Stop();
             timer.Enabled = false;
-
-            if (isStarted == true)
-            {
-                sourceStream.StopRecording();
-                sourceStream.Dispose();
-                waveWriter.Close();
-                isStarted = false;
-                playResponseButton.Enabled = true;
-            }
+    
             tickCount = 0;
 
             //save the question that has been answered make the relavent checklistbox item selected
-            isChanged = true;
-            questionCheckedListBox.SetItemChecked(curQuestionNumber, true);
-            isChanged = false;
+            questionCheckedListBox.SetItemChecked(curQuestionNumber-1, true);
 
             //save the question to the database            
-            //We set the relevant question 
             int number = curQuestionNumber;
             string query = "update question set visited = visited + 1 where number = " + number.ToString();
             db.ExecuteScalar(query);
@@ -364,21 +431,6 @@ namespace ToeflSpeaking
             }
         }
 
-        private void questionChecked_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-            if (isChanged == false)
-            {
-                if (e.CurrentValue == CheckState.Checked)
-                {
-                    e.NewValue = CheckState.Checked;
-                }
-                else if (e.CurrentValue == CheckState.Unchecked)
-                {
-                    e.NewValue = CheckState.Unchecked;
-                }
-            }
-        }
-
         //The funcion will be called when the user select one of the question from the question check list box
         private void questionChecked_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -445,6 +497,22 @@ namespace ToeflSpeaking
             detailTextbox.Text = detailLibrary[1];   //detail
         }
 
+        /*
+         * This function used to avoid the CheckedClickbox control to change the checkbox status when clicking on 
+         * an already selected item.
+        */ 
+        private void questionCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            //The only state ther user can change the checkbox status when clicking on an already selected item is in status 1  
+            if (curState == 1)
+            {
+                if (e.NewValue == CheckState.Unchecked)
+                    e.NewValue = CheckState.Checked;
+                else
+                    e.NewValue = CheckState.Unchecked;
+            }
+        }   
+
         //if we select the question test in the past radio button
         private void TestedRadioButton_CheckedChanged(object sender, EventArgs e)
         {
@@ -499,7 +567,6 @@ namespace ToeflSpeaking
 
 
         //We will play the .wav file when we click the play response button
-        //TODO:
         private void playButton_Click(object sender, EventArgs e)
         {
             //We we haven't started playing the response.
@@ -513,7 +580,6 @@ namespace ToeflSpeaking
                 stopResponseButton.Enabled = true;
                 questionCheckedListBox.Enabled = false;
             }
-
             else
             {
                 if (outputSound.PlaybackState == NAudio.Wave.PlaybackState.Playing)
@@ -545,8 +611,18 @@ namespace ToeflSpeaking
         //when we click the stop speaking button
         private void StopSpeakingButton_Click(object sender, EventArgs e)
         {
-            //change the state
-            StopResponseState();
+            //If it hasn't started recorded yet
+            if (curState == 2)
+            {
+                //Return to the state from 2 to 1
+                stopSpeakingState();
+            }
+            //If it has already recorded the speaking
+            else if (curState == 3)
+            {
+                //change the state from 3 to 4
+                StopResponseState();
+            }
         }
 
         //After we click the start button
@@ -567,10 +643,6 @@ namespace ToeflSpeaking
             }
 
             StartButtonState();
-
-            //set the timer
-            this.timer.Enabled = true;
-            timer.Start();
         }
 
         private void DisposeWave()
@@ -589,15 +661,15 @@ namespace ToeflSpeaking
                 waveReader.Dispose();
                 waveReader = null;
             }
-            if (sourceStream != null)
+            if (waveSource != null)
             {
-                sourceStream.Dispose();
-                sourceStream = null;
+                waveSource.Dispose();
+                waveSource = null;
             }
-            if (waveWriter != null)
+            if (waveFile != null)
             {
-                waveWriter.Dispose();
-                waveWriter = null;
+                waveFile.Dispose();
+                waveFile = null;
             }
         }
 
@@ -612,6 +684,8 @@ namespace ToeflSpeaking
         {
             this.Hide();
             addDataForm.Show();
-        }   
+        }
+
+
     }
 }

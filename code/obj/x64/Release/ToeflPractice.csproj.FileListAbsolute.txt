@@ -1,0 +1,13 @@
+C:\MyProgram\Toefl Speaking\code\bin\x64\Release\ToeflPractice.exe.config
+C:\MyProgram\Toefl Speaking\code\bin\x64\Release\ToeflPractice.exe
+C:\MyProgram\Toefl Speaking\code\bin\x64\Release\ToeflPractice.pdb
+C:\MyProgram\Toefl Speaking\code\bin\x64\Release\NAudio.dll
+C:\MyProgram\Toefl Speaking\code\bin\x64\Release\System.Data.SQLite.dll
+C:\MyProgram\Toefl Speaking\code\bin\x64\Release\NAudio.xml
+C:\MyProgram\Toefl Speaking\code\bin\x64\Release\System.Data.SQLite.pdb
+C:\MyProgram\Toefl Speaking\code\obj\x64\Release\ToeflSpeaking.AddData.resources
+C:\MyProgram\Toefl Speaking\code\obj\x64\Release\ToeflSpeaking.MainForm.resources
+C:\MyProgram\Toefl Speaking\code\obj\x64\Release\ToeflPractice.Properties.Resources.resources
+C:\MyProgram\Toefl Speaking\code\obj\x64\Release\ToeflPractice.csproj.GenerateResource.Cache
+C:\MyProgram\Toefl Speaking\code\obj\x64\Release\ToeflPractice.exe
+C:\MyProgram\Toefl Speaking\code\obj\x64\Release\ToeflPractice.pdb

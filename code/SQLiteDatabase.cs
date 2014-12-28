@@ -4,7 +4,7 @@
 * All rights reserved
 * filename : SqlConnect.cs
 * description : This file is for connecting to the sql database
-* created by Wang Shiliang at 6/1/2011 21:19:50
+* created by Shiliang Wang at 6/1/2011 21:19:50
 *
 */
 using System;

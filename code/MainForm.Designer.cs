@@ -131,6 +131,7 @@ namespace ToeflSpeaking
             // ignoreRespondcheckBox
             // 
             this.ignoreRespondcheckBox.AutoSize = true;
+            this.ignoreRespondcheckBox.Enabled = false;
             this.ignoreRespondcheckBox.Font = new System.Drawing.Font("Segoe UI Symbol", 9F, System.Drawing.FontStyle.Bold);
             this.ignoreRespondcheckBox.Location = new System.Drawing.Point(41, 37);
             this.ignoreRespondcheckBox.Margin = new System.Windows.Forms.Padding(4);
@@ -419,7 +420,7 @@ namespace ToeflSpeaking
             this.questionCheckedListBox.Name = "questionCheckedListBox";
             this.questionCheckedListBox.Size = new System.Drawing.Size(1311, 134);
             this.questionCheckedListBox.TabIndex = 4;
-            this.questionCheckedListBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.questionChecked_ItemCheck);
+            this.questionCheckedListBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.questionCheckedListBox_ItemCheck);
             this.questionCheckedListBox.SelectedIndexChanged += new System.EventHandler(this.questionChecked_SelectedIndexChanged);
             // 
             // QestionCollectLabel
@@ -723,6 +724,7 @@ namespace ToeflSpeaking
             // addLibraryButton
             // 
             this.addLibraryButton.BackColor = System.Drawing.Color.LightGreen;
+            this.addLibraryButton.Enabled = false;
             this.addLibraryButton.Font = new System.Drawing.Font("Georgia", 10.5F);
             this.addLibraryButton.Location = new System.Drawing.Point(1143, 8);
             this.addLibraryButton.Margin = new System.Windows.Forms.Padding(4);
@@ -747,6 +749,7 @@ namespace ToeflSpeaking
             this.Controls.Add(this.panel5);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.HelpButton = true;
             this.Location = new System.Drawing.Point(100, 20);
             this.Margin = new System.Windows.Forms.Padding(4);
