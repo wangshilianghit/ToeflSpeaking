@@ -23,7 +23,7 @@ using System.IO;
 using NAudio.Wave;
 
 
-namespace ToeflSpeaking
+namespace ToeflPractice
 {
     public partial class MainForm : Form
     {
@@ -46,7 +46,9 @@ namespace ToeflSpeaking
         private DataSet wholeLibraryDs;
         private SQLiteDatabase db;
 
-        private string directoryPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toefl Speaking Practice\\Record");
+        private string recordPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toefl Speaking Practice\\Record");
+
+        private string databasePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toefl Speaking Practice\\Database");
 
         private AddData addDataForm;
 
@@ -67,14 +69,29 @@ namespace ToeflSpeaking
         public MainForm()
         {
             InitializeComponent();
-            db = new SQLiteDatabase("toeflSpeaking.sqlite");
 
             //Create program record folder if doesn't exit.
-            if (!Directory.Exists(directoryPath))
+            if (!Directory.Exists(recordPath))
             {
-                System.IO.Directory.CreateDirectory(directoryPath);
+                System.IO.Directory.CreateDirectory(recordPath);
             }
 
+            //copy toeflSpeaking.sqlite to database Path if database Path does not exist.
+            if (!Directory.Exists(databasePath))
+            {
+                string sourceFile = "toeflSpeaking.sqlite";
+                if (!File.Exists(sourceFile))
+                {
+                    MessageBox.Show("File toeflSpeaking.splite does not exist, please reinstall the software");
+                    this.Close();
+                }
+                System.IO.Directory.CreateDirectory(databasePath);
+                string destFile = databasePath + "\\" + sourceFile;
+                System.IO.File.Copy(sourceFile, destFile);
+            }
+
+            string databaseFile = databasePath + "\\toeflSpeaking.sqlite";
+            db = new SQLiteDatabase(databaseFile);
             addDataForm = new AddData(this);
         }
 
@@ -256,7 +273,7 @@ namespace ToeflSpeaking
             int hour = System.DateTime.Now.Hour;
             int minute = System.DateTime.Now.Minute;
             int second = System.DateTime.Now.Second;
-            recordFileName = directoryPath + "\\" +  hour.ToString() + "h-" + minute.ToString() + "m-" + second.ToString() + "s.wav";
+            recordFileName = recordPath + "\\" +  hour.ToString() + "h-" + minute.ToString() + "m-" + second.ToString() + "s.wav";
 
             //record the speaking
             waveSource = new WaveIn();

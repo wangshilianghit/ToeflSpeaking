@@ -11,7 +11,7 @@ using System.Windows.Forms;
 * created by Wang Shiliang at 5/31/2011 18:29:20
 *
 */
-namespace ToeflSpeaking
+namespace ToeflPractice
 {
     static class Program
     {
@@ -23,7 +23,7 @@ namespace ToeflSpeaking
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            Application.Run(new SplashScreen());
         }
     }
 }

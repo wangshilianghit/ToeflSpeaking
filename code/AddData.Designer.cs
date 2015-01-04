@@ -12,7 +12,7 @@
 *
 */
 
-namespace ToeflSpeaking
+namespace ToeflPractice
 {
     partial class AddData
     {

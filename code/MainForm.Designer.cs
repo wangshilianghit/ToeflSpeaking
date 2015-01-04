@@ -11,7 +11,7 @@
 * created by Wang Shiliang at 6/1/2011 20:19:50
 *
 */
-namespace ToeflSpeaking
+namespace ToeflPractice
 {
     partial class MainForm
     {

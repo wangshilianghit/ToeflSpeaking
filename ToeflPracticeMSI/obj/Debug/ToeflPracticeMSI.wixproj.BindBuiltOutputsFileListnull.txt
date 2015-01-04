@@ -1,0 +1,3 @@
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Debug\cab1.cab
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Debug\Setup.msi
+C:\MyProgram\Toefl Speaking\ToeflPracticeMSI\bin\Debug\Setup.wixpdb
