@@ -21,7 +21,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 using NAudio.Wave;
-
+using Microsoft.Win32;
 
 namespace ToeflPractice
 {
@@ -70,24 +70,35 @@ namespace ToeflPractice
         {
             InitializeComponent();
 
-            //Create program record folder if doesn't exit.
+            //Create program record folder if it doesn't exit.
             if (!Directory.Exists(recordPath))
             {
                 System.IO.Directory.CreateDirectory(recordPath);
             }
 
-            //copy toeflSpeaking.sqlite to database Path if database Path does not exist.
-            if (!Directory.Exists(databasePath))
+            //copy toeflSpeaking.sqlite to database Path if toeflSpeaking.sqlite does not exist in the Document folder.
+            string destFile = databasePath + "\\toeflSpeaking.sqlite";
+            if (!File.Exists(destFile))
             {
-                string sourceFile = "toeflSpeaking.sqlite";
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Toefl Speaking Practice");
+                string installPath = key.GetValue("Location").ToString();
+                string sourceFile = installPath + "\\toeflSpeaking.sqlite";
                 if (!File.Exists(sourceFile))
                 {
-                    MessageBox.Show("File toeflSpeaking.splite does not exist, please reinstall the software");
+                    MessageBox.Show("File toeflSpeaking.sqlite does not exist in the installation folder. Please reinstall the software.");
                     this.Close();
                 }
-                System.IO.Directory.CreateDirectory(databasePath);
-                string destFile = databasePath + "\\" + sourceFile;
-                System.IO.File.Copy(sourceFile, destFile);
+
+                try
+                {
+                    System.IO.Directory.CreateDirectory(databasePath);
+                    System.IO.File.Copy(sourceFile, destFile, true);
+                }
+                catch (Exception copyError)
+                {
+                    MessageBox.Show(copyError.Message);
+                    this.Close();
+                }
             }
 
             string databaseFile = databasePath + "\\toeflSpeaking.sqlite";
@@ -276,13 +287,20 @@ namespace ToeflPractice
             recordFileName = recordPath + "\\" +  hour.ToString() + "h-" + minute.ToString() + "m-" + second.ToString() + "s.wav";
 
             //record the speaking
-            waveSource = new WaveIn();
-            waveSource.WaveFormat = new WaveFormat(44100, 1);
-            waveSource.DataAvailable += new EventHandler<WaveInEventArgs>(waveSource_DataAvailable);
-            waveSource.RecordingStopped += new EventHandler<StoppedEventArgs>(waveSouce_RecordingStopped);
+            try
+            {
+                waveSource = new WaveIn();
+                waveSource.WaveFormat = new WaveFormat(44100, 1);
+                waveSource.DataAvailable += new EventHandler<WaveInEventArgs>(waveSource_DataAvailable);
+                waveSource.RecordingStopped += new EventHandler<StoppedEventArgs>(waveSouce_RecordingStopped);
 
-            waveFile = new WaveFileWriter(recordFileName, waveSource.WaveFormat);
-            waveSource.StartRecording();
+                waveFile = new WaveFileWriter(recordFileName, waveSource.WaveFormat);
+                waveSource.StartRecording();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Please install the sound driver for recording. ");
+            }
         }
 
         private void waveSource_DataAvailable(object sender, WaveInEventArgs e)
@@ -372,30 +390,38 @@ namespace ToeflPractice
             detailLibrary = new String[4];
             templateLibrary = new String[4];
 
-            //we read the data from database to the dataset first      
-            string query1 = "select question_name from question where visited >= 1 order by number asc";
-            testedLibraryDs = db.GetDataSet(query1);
-            
-            string query2 = "select question_name from question order by number asc";
-            wholeLibraryDs = db.GetDataSet(query2);
+            //we read the data from database to the dataset first    
+            try
+            {
+                string query1 = "select question_name from question where visited >= 1 order by number asc";
+                testedLibraryDs = db.GetDataSet(query1);
 
-            //get the number of all the questions from the database.
-            string query3 = "select COUNT(*) from question";
-            string[] typeArray = new String[1];
-            typeArray[0] = "int";
-            String[] questionArray = db.getReaderString(query3, typeArray, 1);
-            totalQuestionNum = Convert.ToInt32(questionArray[0]);
+                string query2 = "select question_name from question order by number asc";
+                wholeLibraryDs = db.GetDataSet(query2);
 
-            //get the number of the question
-            string query4 = "select COUNT(*) from question where visited >=1";
-            string[] type2 = new String[1];
-            type2[0] = "int";
-            String[] stringArray2 = db.getReaderString(query4, typeArray, 1);
-            allVisitedNumber = Convert.ToInt32(questionArray[0]);          
+                //get the number of all the questions from the database.
+                string query3 = "select COUNT(*) from question";
+                string[] typeArray = new String[1];
+                typeArray[0] = "int";
+                String[] questionArray = db.getReaderString(query3, typeArray, 1);
+                totalQuestionNum = Convert.ToInt32(questionArray[0]);
 
-            //set the checked list box
-            questionCheckedListBox.DataSource = wholeLibraryDs.Tables[0].DefaultView;
-            questionCheckedListBox.DisplayMember = "question_name";
+                //get the number of the question
+                string query4 = "select COUNT(*) from question where visited >=1";
+                string[] type2 = new String[1];
+                type2[0] = "int";
+                String[] stringArray2 = db.getReaderString(query4, typeArray, 1);
+                allVisitedNumber = Convert.ToInt32(questionArray[0]);
+
+                //set the checked list box
+                questionCheckedListBox.DataSource = wholeLibraryDs.Tables[0].DefaultView;
+                questionCheckedListBox.DisplayMember = "question_name";
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("toeflSpeaking.sqlite does not exist or is empty.");
+                this.Close();
+            }
         }
 
         private double GetSeconds(int count)
