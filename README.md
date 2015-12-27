@@ -1,6 +1,14 @@
 ToeflSpeaking
 =============
 
-It helps International students practice their oral English.
+Run Setup.msi to install.
 
-It is very difficult for international students to get a high score in Toefl speaking section.Toefl speaking practice helps students practice their oral English and get a higher score in the exam. Students can practice their oral English by answering the questions in the library repeatedly. He can also find the pronunciation errors by listening to the video record he has just said.
+For 64 bit operating system, the installer will automatically install the program in "C:\ProgramFiles (x86)\Toefl Speaking Practice\" folder.
+
+For 32 bit operating system, the installer will automatically install the program in "C:\ProgramFiles\Toefl Speaking Practice\" foler.
+
+Please run "ToeflPractice.exe" in the installed folder to run the program.
+
+The recorded file is stored in "Your Documents folder\Toefl Speaking Practice\Record"
+
+Please contact wangshilianghit@gmail.com if you have any questions.
